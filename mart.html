@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Олон улсын эмэгтэйчүүдийн баярын мэнд</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f4ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            min-height: 500px;
+            margin: 20px;
+            perspective: 1500px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 500px;
+            transform-style: preserve-3d;
+            transition: transform 1s ease-in-out;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        .card.open {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-inside {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #7c3aed, #4c1d95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .card-inside {
+            background: white;
+            transform: rotateY(180deg);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #7c3aed;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #4a4a4a;
+        }
+
+        .date {
+            font-size: 1.2rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+        }
+
+        .flower {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #c4b5fd;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        .flower::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #c4b5fd;
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+
+        .flower::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #c4b5fd;
+            border-radius: 50%;
+            transform: translateX(50%);
+        }
+
+        .flower-center {
+            position: absolute;
+            width: 40%;
+            height: 40%;
+            background-color: #fef08a;
+            border-radius: 50%;
+            top: 30%;
+            left: 30%;
+        }
+
+        .button {
+            background-color: #7c3aed;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .button:hover {
+            background-color: #6d28d9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        .hearts-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #e879f9;
+            transform: rotate(45deg);
+            opacity: 0;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #e879f9;
+            border-radius: 50%;
+        }
+
+        .heart::before {
+            top: -10px;
+            left: 0;
+        }
+
+        .heart::after {
+            top: 0;
+            left: -10px;
+        }
+
+        .message {
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+            margin: 0 5px;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        @keyframes heartFloat {
+            0% {
+                transform: translateY(0) rotate(45deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(-100px) rotate(45deg) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            text-align: center;
+            color: #7c3aed;
+            font-size: 0.9rem;
+            width: 100%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: auto;
+                max-height: 80vh;
+            }
+            
+            .card {
+                height: 100%;
+                min-height: 400px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .date {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                max-height: 85vh;
+            }
+            
+            .card-front, .card-inside {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+                margin-bottom: 15px;
+            }
+            
+            p {
+                font-size: 0.9rem;
+                margin-bottom: 15px;
+                line-height: 1.4;
+            }
+            
+            .date {
+                font-size: 0.9rem;
+                padding: 6px 12px;
+                margin-bottom: 15px;
+            }
+            
+            .button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .flower {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .container {
+                height: auto;
+                max-height: 85vh;
+            }
+            
+            .card {
+                min-height: 350px;
+            }
+            
+            .card-front, .card-inside {
+                padding: 20px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .container {
+                height: auto;
+                max-height: 90vh;
+            }
+            
+            .card {
+                min-height: 300px;
+            }
+            
+            h1 {
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+            }
+            
+            .date {
+                margin-bottom: 10px;
+            }
+            
+            .card-inside {
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-front">
+                <span class="date">2025 оны 3-р сарын 8</span>
+                <h1>Олон улсын эмэгтэйчүүдийн баярын мэнд хүргэе!</h1>
+                <div class="flower" style="top: 20%; left: 15%;">
+                    <div class="flower-center"></div>
+                </div>
+                <div class="flower" style="top: 70%; left: 80%;">
+                    <div class="flower-center"></div>
+                </div>
+                <div class="flower" style="top: 80%; left: 30%;">
+                    <div class="flower-center"></div>
+                </div>
+                <p>Картыг нээхийн тулд дарна уу</p>
+                <div class="instructions">Картыг дарна уу</div>
+            </div>
+            <div class="card-inside">
+                <div class="message">
+                    <h2>🌸 Олон улсын эмэгтэйчүүдийн баярын мэнд хүргэе! 🌸</h2>
+                
+                    <p>👩‍🏫 Хүндэт багшдаа – Бидэнд мэдлэг түгээж, хэзээд дэмжиж, урагшлах замыг минь гэрэлтүүлж байдаг тань үнэхээр гайхалтай. Таны заасан хичээлүүд зөвхөн номын хуудсанд үлдэхгүй, бидний амьдралын үнэтэй хичээл болон хоногшин үлдэнэ.</p>
+                    
+                    <p>👩‍🎓 Ангийн охиддоо – Та нарын хөөрхөн инээмсэглэл, хүчирхэг зорилго, хэзээ ч шантрахгүй зүрх сэтгэл энэ ертөнцийг илүү гэрэлтэй, илүү гайхалтай болгож байна. Өөртөө итгэлтэй байж, мөрөөдөл рүүгээ тууштай тэмүүлээрэй!</p>
+                    
+                    <p>Өнөөдөр зөвхөн баяр тэмдэглэх өдөр биш, та бүхний гайхалтай чанаруудыг хүндэтгэх, хайрлах өдөр юм. Бид бүгд та нараар бахархдаг шүү!</p>
+                    
+                    <p>✨ Эрүүл энх, аз жаргал, хайр баяр баясал дүүрэн байхыг хүсье! ✨</p>
+                    
+                    <p>💐 Эмэгтэйчүүдийн баярын мэнд хүргэе! 💐</p>
+                </div>
+                
+                <button class="button" id="celebrateBtn">Баярлая!</button>
+                <div class="hearts-container" id="heartsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.card');
+            const celebrateBtn = document.getElementById('celebrateBtn');
+            const heartsContainer = document.getElementById('heartsContainer');
+            
+            // Open card on click
+            card.addEventListener('click', function() {
+                card.classList.toggle('open');
+            });
+            
+            // Create floating flowers
+            for (let i = 0; i < 5; i++) {
+                createRandomFlower();
+            }
+            
+            // Celebration button
+            celebrateBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card from toggling
+                createHearts();
+            });
+            
+            function createRandomFlower() {
+                const flower = document.createElement('div');
+                flower.classList.add('flower');
+                
+                const flowerCenter = document.createElement('div');
+                flowerCenter.classList.add('flower-center');
+                
+                flower.appendChild(flowerCenter);
+                
+                // Random position
+                const top = Math.random() * 100;
+                const left = Math.random() * 100;
+                
+                flower.style.top = `${top}%`;
+                flower.style.left = `${left}%`;
+                flower.style.animationDelay = `${Math.random() * 5}s`;
+                
+                document.querySelector('.card-front').appendChild(flower);
+            }
+            
+            function createHearts() {
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.classList.add('heart');
+                        
+                        // Random position
+                        const left = Math.random() * 100;
+                        heart.style.left = `${left}%`;
+                        heart.style.bottom = '20px';
+                        
+                        // Random animation duration
+                        const duration = 2 + Math.random() * 3;
+                        heart.style.animation = `heartFloat ${duration}s ease-out forwards`;
+                        
+                        heartsContainer.appendChild(heart);
+                        
+                        // Remove heart after animation
+                        setTimeout(() => {
+                            heart.remove();
+                        }, duration * 1000);
+                    }, i * 100);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
